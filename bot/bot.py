@@ -56,6 +56,13 @@ def get_closest_match(bot, update):
     update.message.reply_text("Next match is " + str(result[0]))
 
 
+def add_player(bot, update):
+    player_id = get_id(update)
+    match_id = execute_for_result('select * from matches order by id desc limit 1')[0]['id']
+    execute("insert into players_in_match (player_id, match_id) values ({}, {})".format(player_id, match_id))
+    update.message.reply_text("You was added to the next match!")
+
+
 def set_name(bot, update):
     id = get_id(update)
     name = extract_arguments(update)
@@ -98,6 +105,9 @@ def main():
 
     get_closest_match_handler = CommandHandler('when', get_closest_match)
     dispatcher.add_handler(get_closest_match_handler)
+
+    add_player_handler = CommandHandler('add', add_player)
+    dispatcher.add_handler(add_player_handler)
 
     # echo_handler = MessageHandler(Filters.text, echo)
     # dispatcher.add_handler(echo_handler)
