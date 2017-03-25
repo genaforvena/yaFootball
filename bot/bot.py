@@ -62,6 +62,13 @@ def add_player(bot, update):
     execute("insert into players_in_match (player_id, match_id) values ({}, {})".format(player_id, match_id))
     update.message.reply_text("You was added to the next match!")
 
+def remove_player(bot, update):
+    player_id = get_id(update)
+    match_id = execute_for_result('select * from matches order by id desc limit 1')[0]['id']
+    import pdb; pdb.set_trace()
+    execute("delete from players_in_match where (player_id = {} and match_id = {})".format(player_id, match_id))
+    update.message.reply_text("You was removed from match!")
+
 
 def set_name(bot, update):
     id = get_id(update)
@@ -108,6 +115,9 @@ def main():
 
     add_player_handler = CommandHandler('add', add_player)
     dispatcher.add_handler(add_player_handler)
+
+    remove_player_handler = CommandHandler('remove', remove_player)
+    dispatcher.add_handler(remove_player_handler)
 
     # echo_handler = MessageHandler(Filters.text, echo)
     # dispatcher.add_handler(echo_handler)
