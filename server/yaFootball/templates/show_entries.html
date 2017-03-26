@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block body %}
+  {% if session.logged_in %}
+    <form action="{{ url_for('add_entry') }}" method="post" class="add-entry">
+      <dl>
+        <dd><input type="submit" value="Share">
+      </dl>
+    </form>
+  {% endif %}
+  <ul class="entries">
+    HI!
+  </ul>
+{% endblock %}

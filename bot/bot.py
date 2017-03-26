@@ -41,6 +41,7 @@ def execute_for_result(statement):
     db.close()
     return result
 
+
 def select_next_match():
     return execute_for_result('select * from matches order by id desc limit 1')[0]
 

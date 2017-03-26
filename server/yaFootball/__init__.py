@@ -1,0 +1,1 @@
+from .yaFootball import app
