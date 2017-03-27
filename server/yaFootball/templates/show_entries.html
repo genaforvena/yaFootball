@@ -1,12 +1,10 @@
 {% extends "layout.html" %}
 {% block body %}
   {% if session.logged_in %}
-    <form action="{{ url_for('add_entry') }}" method="post" class="add-entry">
-      <dl>
-        <dd><input type="submit" value="Share">
-      </dl>
-    </form>
+    <a href=" {{ url_for('add_match') }}"> Создать новый матч </a>
   {% endif %}
+  <br>
+  <br>
   <ul class="entries">
     <h2>Матч:</h2>
     <br> Место: {{ match.place}}
