@@ -5,7 +5,8 @@ setup(
     packages=['yaFootball'],
     include_package_data=True,
     install_requires=[
-        'flask'
+        'flask',
+        'python-telegram-bot'
     ],
     setup_requires=[
         'pytest-runner',

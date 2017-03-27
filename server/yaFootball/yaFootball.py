@@ -3,6 +3,8 @@ import json
 import sqlite3
 import os
 
+from telegram.ext import Updater
+
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, jsonify
 
@@ -20,6 +22,9 @@ app.config.update(dict(
 app.config['JSON_AS_ASCII'] = False
 app.config.from_envvar('YA_FOOTBALL_SETTINGS', silent=True)
 
+TOKEN = "357076937:AAGMTWhLSqR31XcCvGTkqbx_I3tCaXQ1KVM"
+
+updater = Updater(token=TOKEN)
 
 def connect_db():
     rv = sqlite3.connect(app.config['DATABASE'])
@@ -73,6 +78,14 @@ def login():
     return render_template('login.html', error=error)
 
 
+def notify_all_on_new_match():
+    db = get_db()
+    next_match = select_next_match(db)
+    players = db.execute('select * from players').fetchall()
+    for player in players:
+        updater.bot.sendMessage(chat_id=player['id'], text="Next match is " + str(next_match))
+
+
 @app.route('/add', methods=['POST'])
 def add_entry():
     if not session.get('logged_in'):
@@ -83,6 +96,7 @@ def add_entry():
                 request.form["place"],
                 request.form["time"]])
     db.commit()
+    notify_all_on_new_match()
     return redirect(url_for('show_entries'))
 
 
@@ -92,11 +106,13 @@ def add_match():
         abort(401)
     return render_template('add_match.html')
 
+def select_next_match(db):
+    return db.execute('select * from matches order by id desc limit 1').fetchall()[0]
 
 @app.route('/')
 def show_entries():
     db = get_db()
-    next_match = db.execute('select * from matches order by id desc limit 1').fetchall()[0]
+    next_match = select_next_match(db)
     next_match_id = next_match['id']
     result = db.execute('select * from players join players_in_match on players.id = players_in_match.player_id where match_id = {};'.format(next_match_id))
     entries = result.fetchall()
@@ -113,4 +129,6 @@ def logout():
 
 
 if __name__ == '__main__':
+    bot
+    import pdb; pdb.set_trace()
     app.run(debug=True)

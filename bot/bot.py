@@ -5,7 +5,7 @@ from telegram.ext import MessageHandler, Filters
 
 import sqlite3
 
-DATABASE = "../yaFootball.db"
+DATABASE = "../server/yaFootball/yaFootball.db"
 
 TOKEN = "357076937:AAGMTWhLSqR31XcCvGTkqbx_I3tCaXQ1KVM"
 
