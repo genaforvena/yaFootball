@@ -8,6 +8,17 @@
     </form>
   {% endif %}
   <ul class="entries">
-    HI!
+    <h2>Матч:</h2>
+    <br> Место: {{ match.place}}
+    <br> Время: {{ match.time }}
+    <br> Лимит игроков: {{ match.players_limit }}
+    <br>
+    <br>
+    <h2>Идут:</h2>
+    {% for entry in entries %}
+    <br> {{ entry.index }}. {{ entry.name }}; {{ entry.ya_handler }}
+    {% else %}
+    <li><em>Unbelievable.  No entries here so far</em></li>
+  {% endfor %}
   </ul>
 {% endblock %}

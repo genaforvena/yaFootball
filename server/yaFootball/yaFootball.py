@@ -1,4 +1,4 @@
-#!flask/bin/python
+#!server/bin/python
 import json
 import sqlite3
 import os
@@ -6,7 +6,7 @@ import os
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, jsonify
 
-DATABASE = '../../yaFootball.db'
+DATABASE = 'yaFootball.db'
 
 app = Flask(__name__)
 
@@ -23,7 +23,7 @@ app.config.from_envvar('YA_FOOTBALL_SETTINGS', silent=True)
 
 def connect_db():
     rv = sqlite3.connect(app.config['DATABASE'])
-    rv.row_factory = sqlite3.Row
+    rv.row_factory = make_dicts
     return rv
 
 
@@ -45,6 +45,10 @@ def get_db():
     if not hasattr(g, 'sqlite_db'):
         g.sqlite_db = connect_db()
     return g.sqlite_db
+
+def make_dicts(cursor, row):
+    return dict((cursor.description[idx][0], value)
+                for idx, value in enumerate(row))
 
 
 @app.teardown_appcontext
@@ -86,9 +90,13 @@ def add_entry():
 @app.route('/')
 def show_entries():
     db = get_db()
-    cur = db.execute('select id, title, artist, image, address from art order by id desc')
-    entries = cur.fetchall()
-    return render_template('show_entries.html', entries=entries)
+    next_match = db.execute('select * from matches order by id desc limit 1').fetchall()[0]
+    next_match_id = next_match['id']
+    result = db.execute('select * from players join players_in_match on players.id = players_in_match.player_id where match_id = {};'.format(next_match_id))
+    entries = result.fetchall()
+    for i, entry in enumerate(entries):
+        entry["index"] = i + 1
+    return render_template('show_entries.html', entries=entries, match=next_match)
 
 
 @app.route('/logout')
