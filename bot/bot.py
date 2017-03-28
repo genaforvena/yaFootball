@@ -65,13 +65,27 @@ def add_player(bot, update):
         return
     player_id = get_id(update)
     match_id = select_next_match()['id']
+
+    players = execute_for_result('select * from players_in_match where match_id = {}'.format(match_id))
+    players_ids = [x['player_id'] for x in players]
+
+    if player_id in players_ids:
+        update.message.reply_text("You're already registered. We're now " + str(len(players)))
+        return
     execute("insert into players_in_match (player_id, match_id) values ({}, {})".format(player_id, match_id))
-    update.message.reply_text("You was added to the next match!")
+
+    update.message.reply_text("You was added to the next match! We're now " + str(len(players) + 1))
 
 
 def remove_player(bot, update):
     player_id = get_id(update)
     match_id = select_next_match()['id']
+
+    player_in_match = execute_for_result('select * from players_in_match where match_id = {} and player_id = {}'.format(match_id, player_id))
+    if not player_in_match:
+        update.message.reply_text('You were not added!')
+        return
+
     execute("delete from players_in_match where (player_id = {} and match_id = {})".format(player_id, match_id))
     update.message.reply_text("You was removed from match!")
 
@@ -112,14 +126,19 @@ def show_player_info(bot, update):
 
 def start(bot, update):
     id = get_id(update)
+    if select_players_by_id(id):
+        update.message.reply_text("You're already registered!")
+        return
     telegram_handler = update.message.from_user.username
     execute("INSERT INTO players (id, telegram_handler) values ({}, '{}')".format(id, telegram_handler))
     update.message.reply_text(str(id) + " with telegram handler: " + telegram_handler + " was added into db!")
 
 
 def select_player(id):
-    return execute_for_result("select * from players where id = {}".format(id))[0]
+    return select_players_by_id(id)[0]
 
+def select_players_by_id(id):
+    return execute_for_result("select * from players where id = {}".format(id))
 
 def check_name_or_handler_set(bot, update):
     id = get_id(update)
