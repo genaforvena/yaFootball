@@ -61,6 +61,8 @@ def get_closest_match(bot, update):
 
 
 def add_player(bot, update):
+    if not check_name_or_handler_set(bot, update):
+        return
     player_id = get_id(update)
     match_id = select_next_match()['id']
     execute("insert into players_in_match (player_id, match_id) values ({}, {})".format(player_id, match_id))
@@ -83,6 +85,10 @@ def players_in_match_info(bot, update):
 def set_name(bot, update):
     id = get_id(update)
     name = extract_arguments(update)
+    if not name:
+        update.message.reply_text("""Please provide name. Example:
+                                    /set_name Petya Pupkin""")
+        return
     execute("UPDATE players SET name = '{}' WHERE id = {}".format(name, id))
     update.message.reply_text("Name set to " + name)
 
@@ -90,6 +96,10 @@ def set_name(bot, update):
 def set_ya_handler(bot, update):
     id = get_id(update)
     ya_handler = extract_arguments(update)
+    if not ya_handler:
+        update.message.reply_text("""Please provide ya_handler. Example:
+                                    /set_ya_handler @losin""")
+        return
     execute("UPDATE players SET ya_handler = '{}' WHERE id = {}".format(ya_handler, id))
     update.message.reply_text("ya_handler set to " + ya_handler)
 
@@ -105,6 +115,20 @@ def start(bot, update):
     telegram_handler = update.message.from_user.username
     execute("INSERT INTO players (id, telegram_handler) values ({}, '{}')".format(id, telegram_handler))
     update.message.reply_text(str(id) + " with telegram handler: " + telegram_handler + " was added into db!")
+
+
+def select_player(id):
+    return execute_for_result("select * from players where id = {}".format(id))[0]
+
+
+def check_name_or_handler_set(bot, update):
+    id = get_id(update)
+    player = select_player(id)
+    if not player['name'] and not player['ya_handler']:
+        update.message.reply_text("""Please set name or ya_hadnler using commands /set_name your_name
+                                     or /set_ya_handler your_yandex_handler""")
+        return False
+    return True
 
 
 def main():
