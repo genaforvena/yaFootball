@@ -156,10 +156,6 @@ def main():
     get_players_in_match_handler = CommandHandler('players', players_in_match_info)
     dispatcher.add_handler(get_players_in_match_handler)
 
-
-    # echo_handler = MessageHandler(Filters.text, echo)
-    # dispatcher.add_handler(echo_handler)
-
     updater.start_polling()
 
 if __name__ == "__main__":
