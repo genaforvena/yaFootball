@@ -64,9 +64,10 @@ def add_player(bot, update):
     if not check_name_or_handler_set(bot, update):
         return
     player_id = get_id(update)
-    match_id = select_next_match()['id']
+    match = select_next_match()
+    match_id = match['id']
 
-    players = execute_for_result('select * from players_in_match where match_id = {}'.format(match_id))
+    players = select_players_in_match(match_id)
     players_ids = [x['player_id'] for x in players]
 
     if player_id in players_ids:
@@ -74,12 +75,20 @@ def add_player(bot, update):
         return
     execute("insert into players_in_match (player_id, match_id) values ({}, {})".format(player_id, match_id))
 
-    update.message.reply_text("You was added to the next match! We're now " + str(len(players) + 1))
+    if len(players) + 1 > match["players_limit"]:
+        update.message.reply_text("You were added to the waiting list! We'll let you know if there is a room available later")
+    else:
+        update.message.reply_text("You was added to the next match! We're now " + str(len(players) + 1))
+
+
+def select_players_in_match(match_id):
+    return execute_for_result('select * from players_in_match where match_id = {}'.format(match_id))
 
 
 def remove_player(bot, update):
     player_id = get_id(update)
-    match_id = select_next_match()['id']
+    match = select_next_match()
+    match_id = match['id']
 
     player_in_match = execute_for_result('select * from players_in_match where match_id = {} and player_id = {}'.format(match_id, player_id))
     if not player_in_match:
@@ -87,6 +96,13 @@ def remove_player(bot, update):
         return
 
     execute("delete from players_in_match where (player_id = {} and match_id = {})".format(player_id, match_id))
+
+    import pdb; pdb.set_trace()
+    players_in_match = select_players_in_match(match_id)
+    if len(players_in_match) == match["players_limit"]:
+        player_id_from_waiting_list = players_in_match[-1]["player_id"]
+        bot.send_message(player_id_from_waiting_list, "You're now in match!")
+
     update.message.reply_text("You was removed from match!")
 
 
