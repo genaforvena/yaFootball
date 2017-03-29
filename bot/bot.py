@@ -1,4 +1,6 @@
+# -*- coding: utf-8 -*-
 import logging
+import sys
 from telegram.ext import Updater
 from telegram.ext import CommandHandler
 from telegram.ext import MessageHandler, Filters
@@ -12,6 +14,8 @@ TOKEN = "357076937:AAGMTWhLSqR31XcCvGTkqbx_I3tCaXQ1KVM"
 updater = Updater(token=TOKEN)
 dispatcher = updater.dispatcher
 
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 
 def get_db():
@@ -110,7 +114,18 @@ def players_in_match_info(bot, update):
     next_match_id = match['id']
     result = execute_for_result('select * from players join players_in_match on players.id = players_in_match.player_id where match_id = {};'.format(next_match_id))
 
-    update.message.reply_text("Match " + str(match) + "; \n\nPlayers " + str(result))
+    import pdb; pdb.set_trace()
+    update.message.reply_text(match_to_str(match) + "; \n\n " + players_to_str(result))
+
+def players_to_str(players):
+    result = ""
+    for i, player in enumerate(players):
+        result = result + str(i + 1) + ") " + player["name"]
+        result = result + "\n"
+    return result
+
+def match_to_str(match):
+    return "Время: {} \nМесто: {}".format(match['time'], match['place'])
 
 
 def set_name(bot, update):
