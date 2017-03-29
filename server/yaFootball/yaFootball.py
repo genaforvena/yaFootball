@@ -83,7 +83,10 @@ def notify_all_on_new_match():
     next_match = select_next_match(db)
     players = db.execute('select * from players').fetchall()
     for player in players:
-        updater.bot.sendMessage(chat_id=player['id'], text="Next match is " + str(next_match))
+        try:
+            updater.bot.sendMessage(chat_id=player['id'], text="Next match is " + str(next_match))
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
 
 
 @app.route('/add', methods=['POST'])
