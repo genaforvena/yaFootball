@@ -97,7 +97,6 @@ def remove_player(bot, update):
 
     execute("delete from players_in_match where (player_id = {} and match_id = {})".format(player_id, match_id))
 
-    import pdb; pdb.set_trace()
     players_in_match = select_players_in_match(match_id)
     if len(players_in_match) == match["players_limit"]:
         player_id_from_waiting_list = players_in_match[-1]["player_id"]
