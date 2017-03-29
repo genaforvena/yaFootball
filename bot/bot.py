@@ -106,9 +106,11 @@ def remove_player(bot, update):
 
 
 def players_in_match_info(bot, update):
-    next_match_id = select_next_match()['id']
+    match = select_next_match()
+    next_match_id = match['id']
     result = execute_for_result('select * from players join players_in_match on players.id = players_in_match.player_id where match_id = {};'.format(next_match_id))
-    update.message.reply_text("Result " + str(result))
+
+    update.message.reply_text("Match " + str(match) + "; \n\nPlayers " + str(result))
 
 
 def set_name(bot, update):
