@@ -78,7 +78,14 @@ def add_player(bot, update):
         update.message.reply_text("Тебя посчитали, но пока нет мест. Мы тебе напишем, если освободится место")
     else:
         update.message.reply_text("Записали тебя")
-    players_in_match_info(bot, update)
+
+    # Refetch it once again. It's only a bot!
+    players = select_players_in_match(match_id)
+    if len(players) == match["players_limit"]:
+        for player in players:
+            bot.send_message(player["player_id"], "Набрались! Матч точно будет! \n" + match_to_str(match))
+    else:
+        players_in_match_info(bot, update)
 
 
 def select_players_in_match(match_id):
