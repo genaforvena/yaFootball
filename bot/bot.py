@@ -102,8 +102,9 @@ def remove_player(bot, update):
     execute("delete from players_in_match where (player_id = {} and match_id = {})".format(player_id, match_id))
 
     players_in_match = select_players_in_match(match_id)
-    if len(players_in_match) == match["players_limit"]:
-        player_id_from_waiting_list = players_in_match[-1]["player_id"]
+    players_limit = match["players_limit"]
+    if len(players_in_match) >= players_limit:
+        player_id_from_waiting_list = players_in_match[players_limit]["player_id"]
         bot.send_message(player_id_from_waiting_list, "You're now in match!")
 
     update.message.reply_text("You was removed from match!")
