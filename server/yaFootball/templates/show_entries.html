@@ -2,6 +2,16 @@
 {% block body %}
   {% if session.logged_in %}
     <a href=" {{ url_for('add_match') }}"> Создать новый матч </a>
+    <form action="{{ url_for('notify') }}" method="post" class="notify">
+      <dl>
+        <dd><input type="submit" value="Отправить уведомление о матче тем, кто идет">
+      </dl>
+    </form>
+    <form action="{{ url_for('notify_all') }}" method="post" class="notify_all">
+      <dl>
+        <dd><input type="submit" value="Отправить уведомление о матче всем">
+      </dl>
+    </form>
   {% endif %}
   <br>
   <br>

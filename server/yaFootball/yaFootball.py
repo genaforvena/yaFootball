@@ -1,7 +1,9 @@
 #!server/bin/python
+# -*- coding: utf-8 -*-
 import json
 import sqlite3
 import os
+import sys
 
 from telegram.ext import Updater
 
@@ -78,15 +80,59 @@ def login():
     return render_template('login.html', error=error)
 
 
-def notify_all_on_new_match():
+@app.route('/notify', methods=['POST'])
+def notify():
+    if not session.get('logged_in'):
+        abort(401)
+    notify_players()
+    return redirect(url_for('show_entries'))
+
+
+@app.route('/notify_all', methods=['POST'])
+def notify_all():
+    if not session.get('logged_in'):
+        abort(401)
+    notify_everyone()
+    return redirect(url_for('show_entries'))
+
+
+def notify_everyone():
     db = get_db()
     next_match = select_next_match(db)
     players = db.execute('select * from players').fetchall()
     for player in players:
         try:
-            updater.bot.sendMessage(chat_id=player['id'], text="Next match is " + str(next_match))
+            updater.bot.sendMessage(chat_id=player['id'], text="Следующий матч\n" + match_to_str(next_match))
         except:
             print("Unexpected error:", sys.exc_info()[0])
+
+def select_players_in_match(db, match_id):
+    return db.execute('select * from players_in_match where match_id = {}'.format(match_id))
+
+def notify_players():
+    db = get_db()
+    next_match = select_next_match(db)
+    players_in_match = select_players_in_match(db, match_id=next_match["id"])
+    for player in players_in_match:
+        try:
+            updater.bot.sendMessage(chat_id=player['player_id'], text="Играем!\n" + match_to_str(next_match))
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+
+
+def match_and_players_to_str(match, players):
+    return match_to_str(match) + "\n\nИдут: \n" + players_to_str(players)
+
+def players_to_str(players):
+    result = ""
+    for i, player in enumerate(players):
+        result = result + str(i + 1) + ") " + player["name"]
+        result = result + "\n"
+    return result
+
+def match_to_str(match):
+    return "Время: {} \nМесто: {}\nВсего мест: {}".format(match['time'], match['place'], match['players_limit'])
+
 
 
 @app.route('/add', methods=['POST'])
@@ -99,7 +145,7 @@ def add_entry():
                 request.form["place"],
                 request.form["time"]])
     db.commit()
-    notify_all_on_new_match()
+    notify_everyone()
     return redirect(url_for('show_entries'))
 
 
@@ -132,6 +178,4 @@ def logout():
 
 
 if __name__ == '__main__':
-    bot
-    import pdb; pdb.set_trace()
     app.run(debug=True)

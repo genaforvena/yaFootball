@@ -119,7 +119,10 @@ def players_in_match_info(bot, update):
     next_match_id = match['id']
     result = execute_for_result('select * from players join players_in_match on players.id = players_in_match.player_id where match_id = {};'.format(next_match_id))
 
-    update.message.reply_text(match_to_str(match) + "\n\nИдут: \n" + players_to_str(result))
+    update.message.reply_text(match_and_players_to_str(match, result))
+
+def match_and_players_to_str(match, players):
+    return match_to_str(match) + "\n\nИдут: \n" + players_to_str(players)
 
 def players_to_str(players):
     result = ""
