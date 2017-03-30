@@ -58,12 +58,6 @@ def get_id(update):
     return update.message.chat_id
 
 
-def get_closest_match(bot, update):
-    id = get_id(update)
-    result = select_next_match()
-    update.message.reply_text("Next match is " + str(result[0]))
-
-
 def add_player(bot, update):
     if not check_name_or_handler_set(bot, update):
         return
@@ -75,14 +69,16 @@ def add_player(bot, update):
     players_ids = [x['player_id'] for x in players]
 
     if player_id in players_ids:
-        update.message.reply_text("You're already registered. We're now " + str(len(players)))
+        update.message.reply_text("Ты уже был записан")
+        players_in_match_info(bot, update)
         return
     execute("insert into players_in_match (player_id, match_id) values ({}, {})".format(player_id, match_id))
 
     if len(players) + 1 > match["players_limit"]:
-        update.message.reply_text("You were added to the waiting list! We'll let you know if there is a room available later")
+        update.message.reply_text("Тебя посчитали, но пока нет мест. Мы тебе напишем, если освободится место")
     else:
-        update.message.reply_text("You was added to the next match! We're now " + str(len(players) + 1))
+        update.message.reply_text("Записали тебя")
+    players_in_match_info(bot, update)
 
 
 def select_players_in_match(match_id):
@@ -96,7 +92,7 @@ def remove_player(bot, update):
 
     player_in_match = execute_for_result('select * from players_in_match where match_id = {} and player_id = {}'.format(match_id, player_id))
     if not player_in_match:
-        update.message.reply_text('You were not added!')
+        update.message.reply_text('Ты и так не был записан')
         return
 
     execute("delete from players_in_match where (player_id = {} and match_id = {})".format(player_id, match_id))
@@ -105,9 +101,10 @@ def remove_player(bot, update):
     players_limit = match["players_limit"]
     if len(players_in_match) >= players_limit:
         player_id_from_waiting_list = players_in_match[players_limit]["player_id"]
-        bot.send_message(player_id_from_waiting_list, "You're now in match!")
+        bot.send_message(player_id_from_waiting_list, "Освободилось место! Мы тебя ждем!")
+        players_in_match_info(bot, update)
 
-    update.message.reply_text("You was removed from match!")
+    update.message.reply_text("Жаль ((")
 
 
 def players_in_match_info(bot, update):
@@ -115,7 +112,7 @@ def players_in_match_info(bot, update):
     next_match_id = match['id']
     result = execute_for_result('select * from players join players_in_match on players.id = players_in_match.player_id where match_id = {};'.format(next_match_id))
 
-    update.message.reply_text(match_to_str(match) + "\n\n " + players_to_str(result))
+    update.message.reply_text(match_to_str(match) + "\n\nИдут: \n" + players_to_str(result))
 
 def players_to_str(players):
     result = ""
@@ -125,7 +122,7 @@ def players_to_str(players):
     return result
 
 def match_to_str(match):
-    return "Время: {} \nМесто: {}".format(match['time'], match['place'])
+    return "Время: {} \nМесто: {}\nВсего мест: {}".format(match['time'], match['place'], match['players_limit'])
 
 
 def set_name(bot, update):
@@ -136,7 +133,17 @@ def set_name(bot, update):
                                     /set_name Petya Pupkin""")
         return
     execute("UPDATE players SET name = '{}' WHERE id = {}".format(name, id))
-    update.message.reply_text("Name set to " + name)
+    update.message.reply_text("Теперь мы будем называть тебя " + name)
+    help(bot, update)
+
+def help(bot, update):
+    id = get_id(update)
+    update.message.reply_text("/when - когда матч и кто идет\n/add - записаться на следующий матч\n/remove удалиться из матча\n/set_name - сменить имя в боте")
+
+def error(bot, update):
+    id = get_id(update)
+    update.message.reply_text("Эта команда мне неизвестна")
+    help(bot, update)
 
 
 def set_ya_handler(bot, update):
@@ -147,23 +154,23 @@ def set_ya_handler(bot, update):
                                     /set_ya_handler @losin""")
         return
     execute("UPDATE players SET ya_handler = '{}' WHERE id = {}".format(ya_handler, id))
-    update.message.reply_text("ya_handler set to " + ya_handler)
+    update.message.reply_text("Твой яндекс логин: " + ya_handler)
 
 
 def show_player_info(bot, update):
     id = get_id(update)
     result = execute_for_result("SELECT * FROM players WHERE id = {}".format(id))
-    update.message.reply_text("Player info: " + str(result[0]))
+    update.message.reply_text("Выборка из бд о тебе: " + str(result[0]))
 
 
 def start(bot, update):
     id = get_id(update)
     if select_players_by_id(id):
-        update.message.reply_text("You're already registered!")
+        update.message.reply_text("Ты уже зарегистрирован в боте")
         return
     telegram_handler = update.message.from_user.username
     execute("INSERT INTO players (id, telegram_handler) values ({}, '{}')".format(id, telegram_handler))
-    update.message.reply_text(str(id) + " with telegram handler: " + telegram_handler + " was added into db!")
+    update.message.reply_text("Зарегистирировали. Теперь нужно задать имя с помощью команды /set_name\nНапример:\n/set_name Джон До")
 
 
 def select_player(id):
@@ -176,8 +183,7 @@ def check_name_or_handler_set(bot, update):
     id = get_id(update)
     player = select_player(id)
     if not player['name'] and not player['ya_handler']:
-        update.message.reply_text("""Please set name or ya_hadnler using commands /set_name your_name
-                                     or /set_ya_handler your_yandex_handler""")
+        update.message.reply_text("Нельзя добавляться без заданного имени! \nЗадать имя с помощью команды /set_name\nНапример:\n/set_name Джон До")
         return False
     return True
 
@@ -195,7 +201,7 @@ def main():
     show_player_info_handler = CommandHandler('info', show_player_info)
     dispatcher.add_handler(show_player_info_handler)
 
-    get_closest_match_handler = CommandHandler('when', get_closest_match)
+    get_closest_match_handler = CommandHandler('when', players_in_match_info)
     dispatcher.add_handler(get_closest_match_handler)
 
     add_player_handler = CommandHandler('add', add_player)
@@ -206,6 +212,11 @@ def main():
 
     get_players_in_match_handler = CommandHandler('players', players_in_match_info)
     dispatcher.add_handler(get_players_in_match_handler)
+
+    help_handler = CommandHandler('help', help)
+    dispatcher.add_handler(help_handler)
+
+    dispatcher.add_error_handler(error)
 
     updater.start_polling()
 
