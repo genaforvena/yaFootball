@@ -138,7 +138,7 @@ def set_name(bot, update):
 
 def help(bot, update):
     id = get_id(update)
-    update.message.reply_text("/when - когда матч и кто идет\n/add - записаться на следующий матч\n/remove удалиться из матча\n/set_name - сменить имя в боте")
+    update.message.reply_text("/when - когда матч и кто идет\n/add - записаться на следующий матч\n/remove - удалиться из матча\n/set_name - сменить имя в боте")
 
 def error(bot, update):
     id = get_id(update)
