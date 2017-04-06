@@ -6,15 +6,17 @@ import os
 import sys
 
 from bot.bot import match_to_str, players_to_str, match_and_players_to_str, \
-    select_players_in_match
+    select_players_in_match, boot
 from telegram.ext import Updater
 
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, jsonify
+from flask_sslify import SSLify
 
-DATABASE = 'yaFootball.db'
+DATABASE = '/home/yafootball/yaFootball/yaFootball/yaFootball.db'
 
 app = Flask(__name__)
+sslify = SSLify(app)
 
 app.config.update(dict(
     DATABASE=os.path.join(app.root_path, DATABASE),
@@ -43,6 +45,15 @@ def close_db(error):
     """Closes the database again at the end of the request."""
     if hasattr(g, 'sqlite_db'):
         g.sqlite_db.close()
+
+
+@app.route('/bot', methods=['POST'])
+def webhook_handler():
+    if request.method == "POST":
+        # retrieve the message in JSON and then transform it to Telegram object
+        update = telegram.Update.de_json(request.get_json(force=True))
+        updater.dispatcher.process_update(update)
+    return "ok"
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -150,6 +161,7 @@ def init_db():
         db.cursor().executescript(f.read())
     db.commit()
 
+
 def get_db():
     if not hasattr(g, 'sqlite_db'):
         g.sqlite_db = connect_db()
@@ -166,4 +178,5 @@ def make_dicts(cursor, row):
 
 
 if __name__ == '__main__':
+    boot()
     app.run(debug=True)
