@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import sys
+from telegram import Bot
 from telegram.ext import CommandHandler
 from telegram.ext import MessageHandler, Filters
 
