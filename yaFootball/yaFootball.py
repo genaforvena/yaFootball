@@ -4,6 +4,7 @@ import json
 import sqlite3
 import os
 import sys
+import logging
 
 from bot.bot import match_to_str, players_to_str, match_and_players_to_str, \
     select_players_in_match, boot
@@ -49,6 +50,7 @@ def close_db(error):
 
 @app.route('/bot', methods=['POST'])
 def webhook_handler():
+    logging.critical("Request to /bot")
     if request.method == "POST":
         # retrieve the message in JSON and then transform it to Telegram object
         update = telegram.Update.de_json(request.get_json(force=True))
@@ -110,6 +112,7 @@ def add_match():
 
 @app.route('/')
 def show_entries():
+    logging.critical("Request to /")
     db = get_db()
     next_match = select_next_match(db)
     next_match_id = next_match['id']

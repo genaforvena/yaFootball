@@ -229,7 +229,6 @@ def boot():
     dispatcher.add_error_handler(error)
 
     updater.bot.setWebhook('https://yafootball.pythonanywhere.com/bot')
-    updater.bot.idle()
 
 if __name__ == "__main__":
     boot()
