@@ -57,6 +57,7 @@ def close_db(error):
 
 @app.route('/bot', methods=['POST'])
 def webhook_handler():
+    raise Exception(request.get_json(force=True))
     if request.method == "POST":
         update = telegram.Update.de_json(data = request.get_json(force=True), bot = updater.bot)
         updater.dispatcher.process_update(update)
