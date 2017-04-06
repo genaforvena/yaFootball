@@ -198,7 +198,7 @@ def check_name_or_handler_set(bot, update):
     return True
 
 
-def main():
+def boot():
     start_handler = CommandHandler('start', start)
     dispatcher.add_handler(start_handler)
 
@@ -228,7 +228,8 @@ def main():
 
     dispatcher.add_error_handler(error)
 
-    updater.start_polling()
+    updater.bot.setWebhook('https://yaFootball/bot')
+    updater.bot.idle()
 
 if __name__ == "__main__":
-    main()
+    boot()
