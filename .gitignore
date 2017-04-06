@@ -2,5 +2,6 @@
 football/
 .eggs/
 *.egg-info
+yaFootball/.Python
 *.pyc
 yaFootball.db
