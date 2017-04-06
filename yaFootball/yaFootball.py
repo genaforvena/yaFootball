@@ -40,6 +40,13 @@ def initdb_command():
     init_db()
     print('Initialized the database.')
 
+@app.cli.command('start_bot')
+def start_bot():
+    print("starting bot")
+    boot()
+    import pdb; pdb.set_trace()
+    print("bot was started")
+
 
 @app.teardown_appcontext
 def close_db(error):
