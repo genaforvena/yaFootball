@@ -7,7 +7,7 @@ import sys
 import telegram
 
 from bot.bot import match_to_str, players_to_str, match_and_players_to_str, \
-    select_players_in_match, boot, bot
+    select_players_in_match, boot, bot, dispatcher
 
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, jsonify
