@@ -52,7 +52,7 @@ def close_db(error):
 def webhook_handler():
     if request.method == "POST":
         # retrieve the message in JSON and then transform it to Telegram object
-        update = Update.de_json(request.get_json(force=True))
+        update = telegram.Update.de_json(request.get_json(force=True))
         updater.dispatcher.process_update(update)
     return "ok"
 
