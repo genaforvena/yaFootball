@@ -1,7 +1,6 @@
 .DS_Store
-bot/bot
-server/server
-server/.eggs/
+football/
+.eggs/
 *.egg-info
 *.pyc
 yaFootball.db
