@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
 import sys
-from telegram.ext import Updater
 from telegram.ext import CommandHandler
 from telegram.ext import MessageHandler, Filters
 
@@ -11,8 +10,8 @@ DATABASE = "../yaFootball.db"
 
 TOKEN = "357076937:AAGMTWhLSqR31XcCvGTkqbx_I3tCaXQ1KVM"
 
-updater = Updater(token=TOKEN)
-dispatcher = updater.dispatcher
+bot = Bot(token=TOKEN)
+dispatcher = Dispatcher(bot, None, workers=0)
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -228,8 +227,7 @@ def boot():
 
     dispatcher.add_error_handler(error)
 
-    updater.bot.setWebhook('https://yafootball.pythonanywhere.com/bot')
-    updater.bot.idle()
+    bot.setWebhook('https://yafootball.pythonanywhere.com/bot')
 
 if __name__ == "__main__":
     boot()

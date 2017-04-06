@@ -7,8 +7,7 @@ import sys
 import telegram
 
 from bot.bot import match_to_str, players_to_str, match_and_players_to_str, \
-    select_players_in_match, boot
-from telegram.ext import Updater
+    select_players_in_match, boot, bot
 
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, jsonify
@@ -28,10 +27,6 @@ app.config.update(dict(
 ))
 app.config['JSON_AS_ASCII'] = False
 app.config.from_envvar('YA_FOOTBALL_SETTINGS', silent=True)
-
-TOKEN = "357076937:AAGMTWhLSqR31XcCvGTkqbx_I3tCaXQ1KVM"
-
-updater = Updater(token=TOKEN)
 
 
 @app.cli.command('initdb')
@@ -57,9 +52,8 @@ def close_db(error):
 @app.route('/bot', methods=['POST'])
 def webhook_handler():
     if request.method == "POST":
-        update = telegram.Update.de_json(request.get_json(), updater.bot)
-        updater.dispatcher.update_queue.put(update)
-        updater.dispatcher.start()
+        update = telegram.Update.de_json(request.get_json(), bot)
+        dispatcher.process_update(update)
     return "ok"
 
 
@@ -140,7 +134,7 @@ def notify_everyone():
     players = db.execute('select * from players').fetchall()
     for player in players:
         try:
-            updater.bot.sendMessage(chat_id=player['id'], text="Следующий матч\n" + match_to_str(next_match))
+            bot.sendMessage(chat_id=player['id'], text="Следующий матч\n" + match_to_str(next_match))
         except:
             print("Unexpected error:", sys.exc_info()[0])
 
@@ -151,7 +145,7 @@ def notify_players():
     players_in_match = select_players_in_match(db, match_id=next_match["id"])
     for player in players_in_match:
         try:
-            updater.bot.sendMessage(chat_id=player['player_id'], text="Играем!\n" + match_to_str(next_match))
+            bot.sendMessage(chat_id=player['player_id'], text="Играем!\n" + match_to_str(next_match))
         except:
             print("Unexpected error:", sys.exc_info()[0])
 
