@@ -137,7 +137,7 @@ def notify_everyone():
 def notify_players():
     db = get_db()
     next_match = select_next_match(db)
-    players_in_match = select_players_in_match(db, match_id=next_match["id"])
+    players_in_match = select_players_in_match(next_match["id"])
     for player in players_in_match:
         try:
             bot.sendMessage(chat_id=player['player_id'], text="Играем!\n" + match_to_str(next_match))
