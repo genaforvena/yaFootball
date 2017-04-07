@@ -12,9 +12,6 @@ DATABASE = "../yaFootball.db"
 
 TOKEN = "357076937:AAGMTWhLSqR31XcCvGTkqbx_I3tCaXQ1KVM"
 
-bot = Bot(token=TOKEN)
-dispatcher = Dispatcher(bot, None, workers=0)
-
 reload(sys)
 sys.setdefaultencoding('utf8')
 
@@ -199,37 +196,35 @@ def check_name_or_handler_set(bot, update):
     return True
 
 
-def boot():
-    start_handler = CommandHandler('start', start)
-    dispatcher.add_handler(start_handler)
+bot = Bot(token=TOKEN)
+dispatcher = Dispatcher(bot, None, workers=0)
+start_handler = CommandHandler('start', start)
+dispatcher.add_handler(start_handler)
 
-    set_name_handler = CommandHandler('set_name', set_name)
-    dispatcher.add_handler(set_name_handler)
+set_name_handler = CommandHandler('set_name', set_name)
+dispatcher.add_handler(set_name_handler)
 
-    set_ya_handler_handler = CommandHandler('set_ya_handler', set_ya_handler)
-    dispatcher.add_handler(set_ya_handler_handler)
+set_ya_handler_handler = CommandHandler('set_ya_handler', set_ya_handler)
+dispatcher.add_handler(set_ya_handler_handler)
 
-    show_player_info_handler = CommandHandler('info', show_player_info)
-    dispatcher.add_handler(show_player_info_handler)
+show_player_info_handler = CommandHandler('info', show_player_info)
+dispatcher.add_handler(show_player_info_handler)
 
-    get_closest_match_handler = CommandHandler('when', players_in_match_info)
-    dispatcher.add_handler(get_closest_match_handler)
+get_closest_match_handler = CommandHandler('when', players_in_match_info)
+dispatcher.add_handler(get_closest_match_handler)
 
-    add_player_handler = CommandHandler('add', add_player)
-    dispatcher.add_handler(add_player_handler)
+add_player_handler = CommandHandler('add', add_player)
+dispatcher.add_handler(add_player_handler)
 
-    remove_player_handler = CommandHandler('remove', remove_player)
-    dispatcher.add_handler(remove_player_handler)
+remove_player_handler = CommandHandler('remove', remove_player)
+dispatcher.add_handler(remove_player_handler)
 
-    get_players_in_match_handler = CommandHandler('players', players_in_match_info)
-    dispatcher.add_handler(get_players_in_match_handler)
+get_players_in_match_handler = CommandHandler('players', players_in_match_info)
+dispatcher.add_handler(get_players_in_match_handler)
 
-    help_handler = CommandHandler('help', help)
-    dispatcher.add_handler(help_handler)
+help_handler = CommandHandler('help', help)
+dispatcher.add_handler(help_handler)
 
-    dispatcher.add_error_handler(error)
+dispatcher.add_error_handler(error)
 
-    bot.setWebhook('https://yafootball.pythonanywhere.com/bot')
-
-if __name__ == "__main__":
-    boot()
+bot.setWebhook('https://yafootball.pythonanywhere.com/bot')

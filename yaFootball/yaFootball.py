@@ -7,13 +7,13 @@ import sys
 import telegram
 
 from bot.bot import match_to_str, players_to_str, match_and_players_to_str, \
-    select_players_in_match, boot, bot, dispatcher
+    select_players_in_match, bot, dispatcher
 
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, jsonify
 from flask_sslify import SSLify
 
-DATABASE = '/home/yafootball/yaFootball/yaFootball/yaFootball.db'
+DATABASE = 'yaFootball.db'
 
 app = Flask(__name__)
 sslify = SSLify(app)
@@ -35,12 +35,6 @@ def initdb_command():
     init_db()
     print('Initialized the database.')
 
-@app.cli.command('start_bot')
-def start_bot():
-    print("starting bot")
-    boot()
-    print("bot was started")
-
 
 @app.teardown_appcontext
 def close_db(error):
@@ -52,6 +46,7 @@ def close_db(error):
 @app.route('/bot', methods=['POST'])
 def webhook_handler():
     if request.method == "POST":
+        import pdb; pdb.set_trace()
         update = telegram.Update.de_json(request.get_json(), bot)
         dispatcher.process_update(update)
     return "ok"
