@@ -5,7 +5,6 @@ from telegram import Bot
 from telegram.ext import Dispatcher
 from telegram.ext import CommandHandler
 from telegram.ext import MessageHandler, Filters
-from yaFootball.yaFootball import DATABASE
 
 import sqlite3
 

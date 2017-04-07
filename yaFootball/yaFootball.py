@@ -15,7 +15,7 @@ from flask_sslify import SSLify
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-DATABASE = dir_path + '/yaFootball.db'
+global DATABASE = dir_path + '/yaFootball.db'
 
 app = Flask(__name__)
 sslify = SSLify(app)
