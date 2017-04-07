@@ -6,6 +6,7 @@ import os
 import sys
 import telegram
 
+from config import DATABASE
 from bot.bot import match_to_str, players_to_str, match_and_players_to_str, \
     select_players_in_match, bot, dispatcher
 
@@ -13,9 +14,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, jsonify
 from flask_sslify import SSLify
 
-dir_path = os.path.dirname(os.path.realpath(__file__))
 
-global DATABASE = dir_path + '/yaFootball.db'
 
 app = Flask(__name__)
 sslify = SSLify(app)
